@@ -1,0 +1,11 @@
+%dw 2.0
+
+type auto_f9f36d27_1662_4404_b270_ffcaa0cbdd01_Input_Payload = {
+  firstName: String, 
+  lastName: String, 
+  name: String, 
+  externalId: Number, 
+  email: String, 
+  _?: Any
+}
+

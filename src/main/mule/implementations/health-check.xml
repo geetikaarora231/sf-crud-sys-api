@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule
+	xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+
+	<sub-flow name="health-check-sub-flow" doc:id="0a90f71e-d203-4dd5-b37e-51c92f51280f">
+		<logger level="INFO" doc:name="START" doc:id="caffbac8-cfa3-4051-b106-edb4957efff7" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;    appName: app.name,&#10;    flowName : flow.name,&#10;    position: "Flow Start",&#10;    message: "",&#10;    correlationId: vars.correlationId&#10;}]'/>
+		<ee:transform doc:name="Create Health Check Response" doc:id="e888006e-fdbb-4937-b9d7-82ba4a4f1c32">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json encoding="UTF-8"
+---
+{
+	"appName": app.name,
+	"status" : "OK",
+	"timeStamp": now()
+}]]>
+				</ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="END" doc:id="5e9d1d1f-7a56-4e10-ad1f-f29cfae11469" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;    appName: app.name,&#10;    flowName : flow.name,&#10;    position: "Flow Start",&#10;    message: "",&#10;    correlationId: vars.correlationId&#10;}]'/>
+	</sub-flow>
+
+</mule>

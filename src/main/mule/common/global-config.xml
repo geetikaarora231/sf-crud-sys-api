@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+	<configuration doc:name="Configuration" doc:id="6011a0d5-5a90-464a-9c2b-ca98eb39f8b8" defaultErrorHandler-ref="common-exception-handler" />
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="8c12dc9d-1514-4ef9-b6ad-55c3f58f4545" file="properties\secure\config-dev-secure.yaml" key="1234567891234567" />
+	<configuration-properties doc:name="Configuration properties" doc:id="5059c363-ee52-4c2f-9fc0-0aea7d89b705" file="properties\config-dev.yaml" />
+	<configuration-properties doc:name="Configuration properties" doc:id="39c18835-0ee9-4919-a416-5472d70a3527" file="properties\common\common.yaml" />
+	<salesforce:sfdc-config name="Salesforce_Config1" doc:name="Salesforce Config" doc:id="41f047a1-f4c9-4dd3-84c9-56b168241738" >
+		<salesforce:oauth-user-pass-connection consumerKey="${secure::sf.client_id}" consumerSecret="${secure::sf.client_secret}" username="${sf.username}" password="${secure::sf.password}" securityToken="${sf.securityToken}" />
+	</salesforce:sfdc-config>
+</mule>

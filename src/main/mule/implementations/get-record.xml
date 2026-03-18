@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<sub-flow name="get-record-sub-Flow" doc:id="d2400e22-e3f7-4610-a78c-09c3d0a0e578" >
+		<logger level="INFO" doc:name="Start" doc:id="c64ac7aa-b1d4-4618-a146-930dd6f91deb" />
+		<salesforce:query doc:name="Query" doc:id="3b3d142c-edad-4466-9688-2d66bb0e413e" config-ref="Salesforce_Config1">
+			<salesforce:salesforce-query ><![CDATA[#[vars.query]]]></salesforce:salesforce-query>
+			<salesforce:parameters ><![CDATA[#[vars.params]]]></salesforce:parameters>
+		</salesforce:query>
+		<logger level="INFO" doc:name="End" doc:id="f8912dcb-a81d-4a36-bd3c-92cad54abbbf" />
+	</sub-flow>
+</mule>

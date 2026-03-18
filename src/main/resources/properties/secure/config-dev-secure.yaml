@@ -1,0 +1,15 @@
+# Dev Secure Credentials
+
+# Salesforce Secure Credentials
+sf:
+  password: "![xdj4ojbf3X8KLFXSF/cK5A==]"
+  client_id: "![w80bpc6ZS9UGPmFMsSC549gaCl6QVsB+fBz62fcCKzZyO84TJ+czD5IqFWM2YWTmGwOKs94MmfVaoz+/bNn/ZggvLPUNKuuDkawlofQhbxaUbydSszIqTIfkqsEDMdow]"
+  client_secret: "![rC0APQGF/VVz9ouEHCdROLezcsu9fj/C7XdoAmCoDPjFunXH8v3TFlk4QGcbLjleevT1/JkDSqNRhckw679/MOd6XoFHah9Tu85j5KP6Qco=]"
+  
+
+# Email Secure Credentials
+email:
+  password: "![t2seMnUKFrEo5V2DFKGBjfhX5CaoYjypDdHqvnhVLEQ=]"
+  
+
+ 

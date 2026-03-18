@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<sub-flow name="put-record-sub-flow" doc:id="f9f36d27-1662-4404-b270-ffcaa0cbdd01" >
+		<logger level="INFO" doc:name="Logger" doc:id="62017327-ffa0-4d09-9f53-2b459e8aa670" />
+		<ee:transform doc:name="Prepare Data" doc:id="050f2099-75bf-41b9-8557-5227f5e69e59" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+[{
+	Name: payload.name,
+	first_name__c: payload.firstName,
+	last_name__c: payload.lastName,
+	email__c: payload.email,
+	external_id__c: payload.externalId
+}]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:upsert doc:name="Upsert" doc:id="4d429518-2a03-4974-9663-211c689ce41c" config-ref="Salesforce_Config1" externalIdFieldName="#[vars.externalId]" objectType="#[vars.query]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="2012a90e-952b-4207-88e1-f3e1022788bd" />
+	</sub-flow>
+</mule>

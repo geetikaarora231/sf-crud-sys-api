@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:anypoint-mq="http://www.mulesoft.org/schema/mule/anypoint-mq"
+    xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+    xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/anypoint-mq http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd">
+	<error-handler name="common-exception-handler"
+        doc:id="5743aca1-51e2-48ec-b6a1-33a6608dce85">
+        <on-error-propagate type="CONNECTIVITY"
+            logException="true" enableNotifications="true">
+            <set-variable variableName="httpStatus" value="504"
+                doc:name="httpStatus-504" />
+            <flow-ref name="common-default-error-payload-flow" doc:name="common-default-error-payload-flow" />
+        </on-error-propagate>
+        <on-error-propagate type="SECURITY"
+            logException="true" enableNotifications="true">
+            <choice>
+                <when
+                    expression="#[error.errorType.identifier == 'UNAUTHORIZED']">
+                    <set-variable variableName="httpStatus" value="401"
+                        doc:name="httpStatus-401" />
+                </when>
+                <otherwise>
+                    <set-variable variableName="httpStatus" value="403"
+                        doc:name="httpStatus-403" />
+                </otherwise>
+            </choice>
+            <flow-ref name="common-default-error-payload-flow" doc:name="common-default-error-payload-flow" />
+        </on-error-propagate>
+        <on-error-propagate type="ANY" logException="true"
+            enableNotifications="true">
+            <choice>
+                <when expression="#[(error.errorType.namespace == 'APIKIT') or (error.errorType.namespace == 'HTTP')]">
+                    <choice>
+                        <when
+                            expression="#[error.errorType.identifier == 'BAD_REQUEST']">
+                            <set-variable variableName="httpStatus" value="400"
+                                doc:name="httpStatus-400" />
+                        </when>
+                        <when
+                            expression="#[error.errorType.identifier == 'NOT_FOUND']">
+                            <set-variable variableName="httpStatus" value="404"
+                                doc:name="httpStatus-404" />
+                        </when>
+                        <when
+                            expression="#[error.errorType.identifier == 'METHOD_NOT_ALLOWED']">
+                            <set-variable variableName="httpStatus" value="405"
+                                doc:name="httpStatus-405" />
+                        </when>
+                        <when
+                            expression="#[error.errorType.identifier == 'NOT_ACCEPTABLE']">
+                            <set-variable variableName="httpStatus" value="406"
+                                doc:name="httpStatus-406" />
+                        </when>
+                        <when
+                            expression="#[error.errorType.identifier == 'UNSUPPORTED_MEDIA_TYPE']">
+                            <set-variable variableName="httpStatus" value="415"
+                                doc:name="httpStatus-415" />
+                        </when>
+                        <when
+                            expression="#[error.errorType.identifier == 'NOT_IMPLEMENTED']">
+                            <set-variable variableName="httpStatus" value="501"
+                                doc:name="httpStatus-501" />
+                        </when>
+                        <otherwise >
+                            <set-variable value="#[if(vars.httpStatus != null) vars.httpStatus else 500]" doc:name="httpStatus-500" doc:id="7256b76b-1a41-4139-9ac7-7a19e4d85c7f" variableName="httpStatus"/>
+                        </otherwise>
+                    </choice>
+                </when>
+                <otherwise>
+                    <set-variable variableName="httpStatus"
+                        value="#[if(vars.httpStatus != null) vars.httpStatus else 500]"
+                        doc:name="httpStatus-500" />
+                </otherwise>
+            </choice>
+            <flow-ref name="common-default-error-payload-flow" doc:name="common-default-error-payload-flow" />
+        </on-error-propagate>
+        
+    </error-handler>
+                <sub-flow name="common-default-error-payload-flow" doc:id="d0f7d018-2622-4ba1-b216-da6de11a63b0" >
+        <logger level="INFO" doc:name="START" doc:id="bf2f276d-9f53-435b-b9f6-98bc626c7055" message="#[%dw 2.0&#10;output application/java&#10;---&#10;{&#10;    &quot;env&quot;: Mule::p('env'),&#10;    &quot;transactionId&quot;: vars.correlationId,&#10;    &quot;applicationName&quot;: app.name ,&#10;    &quot;flowName&quot;: flow.name ++ &quot;: Start&quot; ,&#10;    &quot;timestamp&quot;: now() ,&#10;    &quot;eventType&quot;: &quot;INFO&quot;&#10;}]"/>
+        <ee:transform doc:name="variables: errorMessage , finalOutput" doc:id="c769a5ea-b3ca-4184-9f34-5698229721ea" >
+            <ee:message >
+            </ee:message>
+            <ee:variables >
+                <ee:set-variable variableName="errorMessage" ><![CDATA[%dw 2.0
+import * from dw::core::Strings
+output application/json
+fun format(d: DateTime) = d as String {format: "yyyy-MM-dd'T'HH:mm:ss.SSS"}
+---
+    
+{
+      "transmissionId": if ( vars.correlationId != null ) vars.correlationId else correlationId default "",
+      "documentId": if(vars.purchaseOrderData[0].b2bMessage.header.interchangeControl !=null) vars.purchaseOrderData[0].b2bMessage.header.interchangeControl else "",
+      "appName": app.name default "",
+      "partnerName": if(vars.vendorId != null) keysOf(vars.vendor filterObject ((value, key, index) -> value == vars.vendorId))[0] else "",
+      "partnerId": if (vars.vendorId != null) vars.vendorId else "" default "",
+      "transactionType": if(vars.flowName=="process-invoices-outboud-flow") "Invoice" else "Purchase Order" default "",
+      "transactionID": vars.purchaseOrderData[0].b2bMessage.data.purchaseOrder.poNumber default "",
+      "status": "Failed",
+      "direction":if(vars.flowName=="process-invoices-outboud-flow") "Outbound" else "Inbound" default "",      
+      "documentType": if(vars.flowName=="process-invoices-outboud-flow") "810 - Invoice" else "850 - Purchase Order" default "",
+      "environment":capitalize(p('mule.env')) default "",
+      "flowName": vars.flowName default "",
+      "timestamp": format(now() >> "America/Chicago"),
+      "errorCode": vars.httpStatus as String default "",
+      "errorCategory":"ERROR- " ++ error.errorType.namespace ++ ":" ++ error.errorType.identifier default "",
+      "errorDescription": if (vars.httpStatus == 500 )error.exception.errorMessage.payload.detail else error.description ++ " Failed at: " ++ error.failingComponent default "",
+      "errorResolutionSuggestion": "",
+      "errorSegment": "",
+      "errorValue": ""
+    }]]></ee:set-variable>
+                <ee:set-variable variableName="finalOutput" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "appName": app.name default "",
+    "errorCode": vars.httpStatus default "",
+    "errorMessage": "ERROR- " ++ error.errorType.namespace ++ ":" ++ error.errorType.identifier default "",
+    "errorDescription":if (vars.httpStatus == 500 )error.exception.errorMessage.payload.detail else error.description default "",
+    "correlationId": if ( vars.correlationId != null ) vars.correlationId else correlationId default "",
+    "timeStamp": if ( vars.timeStamp != null ) vars.timeStamp else now(),
+}]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform doc:name="error payload" doc:id="002bf758-918a-4e1e-be91-c364029d24c5" >
+            <ee:message >
+                <ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+vars.finalOutput]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+        <logger level="ERROR" doc:name="ERROR : error payload" doc:id="2dc2c890-2aef-4cd9-8f81-641b7860bc95" message="#[vars.finalOutput]"/>
+        <logger level="INFO" doc:name="END" doc:id="10ff3d96-a7ab-40ee-910e-38801c234e4a" message="#[%dw 2.0&#10;output application/java&#10;---&#10;{&#10;    &quot;env&quot;: Mule::p('env'),&#10;    &quot;transactionId&quot;: vars.correlationId,&#10;    &quot;applicationName&quot;: app.name ,&#10;    &quot;flowName&quot;: flow.name ++ &quot;: End&quot; ,&#10;    &quot;timestamp&quot;: now() ,&#10;    &quot;eventType&quot;: &quot;INFO&quot;&#10;}]"/>
+    </sub-flow>
+</mule>

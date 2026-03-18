@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
+    <http:listener-config name="sf-crud-sys-spi-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+    <apikit:config name="sf-crud-sys-spi-config" api="resource::ce235d46-115c-497c-b0e2-474afd80f5e9:sf-crud-sys-spi:1.0.0:raml:zip:sf-crud-sys-spi.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <flow name="sf-crud-sys-spi-main">
+        <http:listener config-ref="sf-crud-sys-spi-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+                <set-variable value="#[attributes.headers.'x-correlation-id' default correlationId]" doc:name="correlationId" doc:id="2447a445-98cf-4137-9534-d3316617390a" variableName="correlationId"/>
+        <apikit:router config-ref="sf-crud-sys-spi-config" />
+    </flow>
+    <flow name="put:\customer\(externalId):application\json:sf-crud-sys-spi-config">
+        <ee:transform doc:name="vars: query, externalId">
+            <ee:variables>
+                <ee:set-variable variableName="externalId"><![CDATA[((attributes.queryParams.'query') splitBy (","))[1]]]></ee:set-variable>
+				<ee:set-variable variableName="query" ><![CDATA[((attributes.queryParams.'query') splitBy (","))[0]]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <flow-ref doc:name="put-record-sub-flow" doc:id="b67bb754-697c-4a9d-b649-d6da69ad64fe" name="put-record-sub-flow"/>
+		<ee:transform doc:name="Prepare Response">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  status: 200,
+  message: "Success"
+} ]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\healthcheck:sf-crud-sys-spi-config">
+        <flow-ref doc:name="health-check-sub-flow" doc:id="57189969-ce5f-4ff4-b562-5af92d77826e" name="health-check-sub-flow"/>
+    </flow>
+    <flow name="get:\customer\(externalId):sf-crud-sys-spi-config">
+        <ee:transform doc:name="var : query, externalId">
+            <ee:variables>
+                <ee:set-variable variableName="externalId"><![CDATA[attributes.uriParams.'externalId']]></ee:set-variable>
+				<ee:set-variable variableName="query" ><![CDATA[(attributes.queryParams.'query')]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform doc:name="var : query" doc:id="26bb60bd-ff41-4a67-ae93-5bf8ae8c838c" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="params" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+((vars.query splitBy (":"))[1]) : vars.externalId as Number
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+        <flow-ref doc:name="get-record-sub-Flow" doc:id="fef9e85c-0fe6-4ccf-a3a1-8844e35fe89f" name="get-record-sub-Flow"/>
+		<ee:transform doc:name="Prepare Response">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\customer:sf-crud-sys-spi-config">
+        <ee:transform doc:name="vars: query" doc:id="5a82af43-6ead-4f9e-9b64-f69cfbde0a2d" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="query" ><![CDATA[attributes.queryParams.'query']]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="get-record-sub-Flow" doc:id="1fdf7835-65c8-4c1e-9e49-2c15d7714313" name="get-record-sub-Flow"/>
+		<ee:transform doc:name="Prepare Response">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\customer:application\json:sf-crud-sys-spi-config">
+		<ee:transform doc:name="vars : query, externalId" doc:id="c22a953f-250f-4bc9-98fd-d48b6ceaa3c5" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="query" ><![CDATA[((attributes.queryParams.'query') splitBy (","))[0]]]></ee:set-variable>
+				<ee:set-variable variableName="externalId" ><![CDATA[((attributes.queryParams.'query') splitBy (","))[1]]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="put-record-sub-flow" doc:id="8c1bbaf8-7e30-445e-b5a3-57aa44341953" name="put-record-sub-flow"/>
+		<ee:transform doc:name="Prepare Response">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  status: 200,
+  message: "Success"
+} ]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+</mule>
