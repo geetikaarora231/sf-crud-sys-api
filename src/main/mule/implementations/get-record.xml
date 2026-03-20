@@ -6,11 +6,11 @@
 http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<sub-flow name="get-record-sub-Flow" doc:id="d2400e22-e3f7-4610-a78c-09c3d0a0e578" >
-		<logger level="INFO" doc:name="Start" doc:id="c64ac7aa-b1d4-4618-a146-930dd6f91deb" />
+		<logger level="INFO" doc:name="Start" doc:id="c64ac7aa-b1d4-4618-a146-930dd6f91deb" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;    appName: app.name,&#10;    flowName : flow.name,&#10;    position: "Flow Start",&#10;    message: "Flow to get record started",&#10;    correlationId: correlationId&#10;}]'/>
 		<salesforce:query doc:name="Query" doc:id="3b3d142c-edad-4466-9688-2d66bb0e413e" config-ref="Salesforce_Config1">
 			<salesforce:salesforce-query ><![CDATA[#[vars.query]]]></salesforce:salesforce-query>
 			<salesforce:parameters ><![CDATA[#[vars.params]]]></salesforce:parameters>
 		</salesforce:query>
-		<logger level="INFO" doc:name="End" doc:id="f8912dcb-a81d-4a36-bd3c-92cad54abbbf" />
+		<logger level="INFO" doc:name="End" doc:id="f8912dcb-a81d-4a36-bd3c-92cad54abbbf" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;    appName: app.name,&#10;    flowName : flow.name,&#10;    position: "Flow Ended",&#10;    message: "Flow to get record ended",&#10;    correlationId: correlationId&#10;}]'/>
 	</sub-flow>
 </mule>
