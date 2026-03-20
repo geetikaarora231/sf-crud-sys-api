@@ -6,7 +6,7 @@
 http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<sub-flow name="put-record-sub-flow" doc:id="f9f36d27-1662-4404-b270-ffcaa0cbdd01" >
-		<logger level="INFO" doc:name="Logger" doc:id="62017327-ffa0-4d09-9f53-2b459e8aa670" />
+		<logger level="INFO" doc:name="Start" doc:id="62017327-ffa0-4d09-9f53-2b459e8aa670" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;    appName: app.name,&#10;    flowName : flow.name,&#10;    position: "Flow Start",&#10;    message: "Flow to upsert record started",&#10;    correlationId: correlationId&#10;}]'/>
 		<ee:transform doc:name="Prepare Data" doc:id="050f2099-75bf-41b9-8557-5227f5e69e59" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
@@ -21,7 +21,7 @@ output application/java
 }]]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<salesforce:upsert doc:name="Upsert" doc:id="4d429518-2a03-4974-9663-211c689ce41c" config-ref="Salesforce_Config1" externalIdFieldName="#[vars.externalId]" objectType="#[vars.query]"/>
-		<logger level="INFO" doc:name="Logger" doc:id="2012a90e-952b-4207-88e1-f3e1022788bd" />
+		<salesforce:upsert doc:name="Record" doc:id="4d429518-2a03-4974-9663-211c689ce41c" config-ref="Salesforce_Config1" externalIdFieldName="#[vars.externalId]" objectType="#[vars.query]"/>
+		<logger level="INFO" doc:name="End" doc:id="2012a90e-952b-4207-88e1-f3e1022788bd" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;    appName: app.name,&#10;    flowName : flow.name,&#10;    position: "Flow End",&#10;    message: "Flow to upsert record ended",&#10;    correlationId: correlationId&#10;}]'/>
 	</sub-flow>
 </mule>

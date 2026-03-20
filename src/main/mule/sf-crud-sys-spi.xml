@@ -47,7 +47,7 @@ output application/json
 				<ee:set-variable variableName="query" ><![CDATA[(attributes.queryParams.'query')]]></ee:set-variable>
             </ee:variables>
         </ee:transform>
-        <ee:transform doc:name="var : query" doc:id="26bb60bd-ff41-4a67-ae93-5bf8ae8c838c" >
+        <ee:transform doc:name="var : params" doc:id="26bb60bd-ff41-4a67-ae93-5bf8ae8c838c" >
 			<ee:message >
 			</ee:message>
 			<ee:variables >
